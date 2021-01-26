@@ -198,7 +198,7 @@ func (l *EtcdMutex) UnLock(lockName string) error {
 }
 
 func (l *EtcdMutex) RenewLock(lockName string) bool {
-	// etcd mutex, they has do renew:
+	// etcd mutex, they have done it:
 	//		 https://github.com/etcd-io/etcd/blob/92458228e1268e9b78e11abeeb255824b44d0b2f/client/v3/concurrency/session.go#L64
 	return false
 }
