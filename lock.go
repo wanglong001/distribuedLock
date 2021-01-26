@@ -146,7 +146,7 @@ func (l *RedisMutex) Close() {
 
 //TODO RedLock EtcdMutex
 
-// TODO EtcdMutex
+// EtcdMutex
 type EtcdMutex struct {
 	EtcdClient *clientv3.Client
 	mutexMap   sync.Map

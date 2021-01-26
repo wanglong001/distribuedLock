@@ -6,7 +6,7 @@ redis 是 AP 模型， 需要定一致性的场景最好使用 etcd
 * [x] etcd
 
 ## 环境
-go 1.5
+go 1.15.6
 
 ## Example
 
