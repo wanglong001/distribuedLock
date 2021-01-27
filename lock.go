@@ -77,13 +77,6 @@ func (l *RedisMutex) Init(Addr, Password string, DB int, ttl time.Duration) erro
 }
 
 func (l *RedisMutex) Lock(lockName string) error {
-	n, err := l.RedisClient.Exists(l.Ctx, lockName).Result()
-	if err != nil {
-		return err
-	}
-	if n > 0 {
-		return ErrLocked
-	}
 	verifyCode := uuid.NewV4().String()
 	ok, err := l.RedisClient.SetNX(l.Ctx, lockName, verifyCode, l.ttl).Result()
 	if err != nil {

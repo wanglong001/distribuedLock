@@ -7,46 +7,48 @@ import (
 	"time"
 )
 
-// func Test_RedisLock(t *testing.T) {
-// 	count := 0
-// 	redisLock := &RedisMutex{}
-// 	redisLock.Init("localhost:6379", "", 0, 2*time.Second)
-// 	managerLock := &ManagerMutex{IMutex: redisLock}
-// 	redisLock.RedisClient.Del(redisLock.Ctx, "redis").Result()
+func Test_RedisLock(t *testing.T) {
+	count := 0
+	redisLock := &RedisMutex{}
+	redisLock.Init("localhost:6379", "", 0, 2*time.Second)
+	managerLock := &ManagerMutex{IMutex: redisLock}
+	redisLock.RedisClient.Del(redisLock.Ctx, "redis").Result()
+	defer managerLock.Close()
+	for i := 0; i < 3; i++ {
+		go func(i int) {
+			for {
+				err := managerLock.Lock("redis")
+				interval := time.Duration(rand.Int31n(10)) * time.Second
+				if err != nil {
+					time.Sleep(interval)
+					continue
+				}
+				managerLock.RenewLock("redis")
+				fmt.Println("Sleep: ", interval)
+				count++
+				t.Log("goruntime id: ", i, "count: ", count)
+				time.Sleep(interval)
+				err = managerLock.UnLock("redis")
+				time.Sleep(interval)
+				if err != nil {
+					continue
+				}
 
-// 	for i := 0; i < 3; i++ {
-// 		go func(i int) {
-// 			for {
-// 				err := managerLock.Lock("redis")
-// 				interval := time.Duration(rand.Int31n(10)) * time.Second
-// 				if err != nil {
-// 					time.Sleep(interval)
-// 					continue
-// 				}
-// 				managerLock.RenewLock("redis")
-// 				fmt.Println("Sleep: ", interval)
-// 				count++
-// 				t.Log("goruntime id: ", i, "count: ", count)
-// 				time.Sleep(interval)
-// 				err = managerLock.UnLock("redis")
-// 				time.Sleep(interval)
-// 				if err != nil {
-// 					continue
-// 				}
+			}
+		}(i)
+	}
+	for count <= 100 {
 
-// 			}
-// 		}(i)
-// 	}
-// 	for count <= 100000 {
+	}
 
-// 	}
-// }
+}
 
 func Test_EtcdLock(t *testing.T) {
 	count := 0
 	etcdMutex := &EtcdMutex{}
 	etcdMutex.Init([]string{"0.0.0.0:2379"}, 2*time.Second)
 	managerLock := &ManagerMutex{IMutex: etcdMutex}
+	defer managerLock.Close()
 	lockName := "etcd2"
 
 	for i := 0; i < 3; i++ {
@@ -72,7 +74,7 @@ func Test_EtcdLock(t *testing.T) {
 			}
 		}(i)
 	}
-	for count <= 100000 {
+	for count <= 100 {
 
 	}
 }
